@@ -16,11 +16,11 @@
 | Log File 1: Group Name    | auth-logs                                                    | Descriptive name. Groups related logs together in CloudWatch. |
 | Log File 1: Log Class     | STANDARD                                                     | Keep in STANDARD (hot). Frequent access needed for security analysis. |
 | Log File 1: Retention     | 3 days                                                       | More days, more data it will save                            |
-| Log File 2: Path          | /var/log/syslog  (or /var/log/messages)                      | System  events, kernel messages, cron jobs. Less critical than auth.log. |
+| Log File 2: Path          | /var/log/syslog  (or /var/log/messages for RedHat)           | System events, kernel messages, cron jobs. Less critical than auth.log. |
 | Log File 2: Group Name    | system-logs                                                  | Separates system logs from auth logs for easier filtering.   |
 | Log File 2: Log Class     | INFREQUENT_ACCESS                                            | Query  less often. Good candidate for cheaper tier if retention long. |
 | Log File 2: Retention     | 3  days                                                      | Shorter retention saves cost. Critical issues usually surface quickly. |
-| X-Ray Traces?             | No                                                           | Only  needed if instrumenting application code. Not required for log monitoring. |
-| Store Config in SSM?      | No                                                           | Centralized  config management. Essential for multi-instance deployments. Cheap. |
-| SSM Parameter Name        | No                                                           | Use  descriptive name. "security-agent" indicates purpose. Helps with  multi-config setups. |
-| SSM Region                | Same  as instances                                           | Avoid  cross-region calls. Latency + data transfer costs.    |
+| X-Ray Traces?             | No                                                           | Only needed if instrumenting application code. Not required for log monitoring. |
+| Store Config in SSM?      | No                                                           | Centralized config management. Essential for multi-instance deployments. Cheap. |
+| SSM Parameter Name        | No                                                           | Use descriptive name. "security-agent" indicates purpose. Helps with  multi-config setups. |
+| SSM Region                | Same  as instances                                           | Avoid cross-region calls. Latency + data transfer costs.     |

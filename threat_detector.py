@@ -52,7 +52,7 @@ def lambda_handler(event, context):
         
         log_events = log_data['logEvents']
         log_group = log_data['logGroup']
-
+    
         suspicious_events = []
 
         # Analyze each log entry

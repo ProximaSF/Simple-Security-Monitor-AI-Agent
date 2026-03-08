@@ -2,10 +2,12 @@ import os
 import json
 import inspect
 from discord_webhook import DiscordWebhook, DiscordEmbed
+from dotenv import load_dotenv
 
-# Get webhook URL from Lambda environment variables instead of .env file
-WEBHOOK_URL = os.environ.get("WEBHOOK_URL")
-WEBHOOK_URL = "https://discord.com/api/webhooks/1479741984666157056/x9zkWqoZLMznkmVeEd4ssfr5eyC8sU0EutAr0MBMTWJqeG4gYYXHV2Wa-m4ERIGNUe8Q"
+load_dotenv()
+WEBHOOK_URL = os.getenv("WEBHOOK_URL")
+#WEBHOOK_URL = os.environ.get("WEBHOOK_URL")
+
 def webhook_embed(title, message_description, color=None):
     webhook = DiscordWebhook(url=WEBHOOK_URL)
     embed = DiscordEmbed(
