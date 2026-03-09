@@ -12,7 +12,7 @@ This project is to experiment and understand AWS services; CloudWatch, Lambda Fu
 
 <u>Bedrock</u> is a AWS cloud service that allows the use of foundation models via API to develop applications without managing the AI infrastructure.  
 
-The first thing I started with was experimenting with and learning about CloudWatch Agent. After I set up a log group and stream that connects my EC2 instance to the AWS CloudWatch management console, I then moved on to Lambda functions. This service can trigger a script when a log file updates. The script reads the file and then searches for patterns for security concerns. If a pattern is detected, it calls a Discord webhook and sends a message to the channel. During the process, I also learned about S3, which I used to store Python dependencies for the script to run. Below is a diagram to illustrate how each service is connected. Lastly, I have also attached three markdown documents for the setup process for each service, besides Bedrock.
+The first thing I started with was experimenting with and learning about CloudWatch Agent. After I set up a log group and stream that connects my EC2 instance to the AWS CloudWatch management console, I then moved on to Lambda functions. This service can trigger a script when a log file updates. The script reads the file and then searches for patterns for security concerns. If a pattern is detected, it calls Bedrock to ask the AI to generate a summary and other information in JSON format, which will be used as a message to send to a Discord channel via a webhook URL. During the process, I also learned about S3, which I used to store Python dependencies for the script to run. Below is a diagram to illustrate how each service is connected. Lastly, I have also attached three Markdown documents for the setup process for each service, besides Bedrock.
 
 1. [CloudWatch](CloudWatch.md): Documentation how I setup CloudWatch on Ubuntu and AWS console
 
@@ -27,7 +27,7 @@ Note: The instance image I used is Ubuntu. Thus, the process of installing AWS C
 ## Possible Future Improvement Check List
 
 - [x]  Integrate Bedrock for custom AI response
-- [ ]  Add more threat detection conditions/logic
+- [x]  Add more threat detection conditions/logic
 - [x]  Optimize script for AI agent
 - [ ]  Automatically block IP Address after # failed attempts
 - [ ]  Store Lambda result to S3 

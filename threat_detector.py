@@ -7,6 +7,9 @@ import inspect
 from discord_webhook import DiscordWebhook, DiscordEmbed
 
 WEBHOOK_URL = os.environ.get("WEBHOOK_URL")
+FAILED_ATTEMPT_THRESHOLD = 2
+TIME_WINDOW_SECONDS = 120  # 2 minutes
+
 
 # Initialize Bedrock client
 bedrock = boto3.client("bedrock-runtime", region_name="us-east-1")
@@ -86,6 +89,28 @@ def analyze_auth_log(log_message):
 
     return {'is_threat': False}
 
+def check_threshold_in_window(events, threshold, window_seconds):
+    """
+    Returns (triggered, matching_events) if `threshold` events occur
+    within `window_seconds` of each other using a sliding window.
+    """
+    if len(events) < threshold:
+        return False, []
+
+    # Events from CloudWatch are in milliseconds
+    sorted_events = sorted(events, key=lambda e: e['timestamp'])
+
+    for i in range(len(sorted_events) - threshold + 1):
+        window_start = sorted_events[i]['timestamp']
+        window_end = sorted_events[i + threshold - 1]['timestamp']
+
+        elapsed_seconds = (window_end - window_start) / 1000  # ms → seconds
+
+        if elapsed_seconds <= window_seconds:
+            # Return the events that triggered the alert
+            return True, sorted_events[i:i + threshold]
+
+    return False, []
 
 def lambda_handler(event, context):
     print("Running...")
@@ -113,21 +138,37 @@ def lambda_handler(event, context):
                     'color': threat_analysis['color'],
                 })
 
-        if suspicious_events:
-            for threat_overview in suspicious_events:
+        # Group by threat type
+        from collections import defaultdict
+        threat_groups = defaultdict(list)
+        for evt in suspicious_events:
+            threat_groups[evt['threat_type']].append(evt)
 
-                # NEW: Call Bedrock to analyze the threat
+        alerts_sent = 0
+        for threat_type, events in threat_groups.items():
+
+            triggered, window_events = check_threshold_in_window(
+                events,
+                threshold=FAILED_ATTEMPT_THRESHOLD,
+                window_seconds=TIME_WINDOW_SECONDS
+            )
+
+            if triggered:
+                latest = window_events[-1]
+                first = window_events[0]
+                elapsed = (latest['timestamp'] - first['timestamp']) / 1000
+
                 ai_analysis = analyze_with_bedrock(
-                    log_message=threat_overview['message'],
-                    threat_type=threat_overview['threat_type'],
-                    severity=threat_overview['severity']
+                    log_message=latest['message'],
+                    threat_type=latest['threat_type'],
+                    severity=latest['severity']
                 )
 
-                # Build a richer Discord message using AI analysis
-                title = f"🚨 {threat_overview['severity']} ALERT: {threat_overview['threat_type'].upper()}"
+                title = f"🚨 {latest['severity']} ALERT: {latest['threat_type'].upper()} ({len(window_events)} attempts in {int(elapsed)}s)"
                 description = inspect.cleandoc(f"""
-                **Threat Type:** {threat_overview['threat_type']}
-                **Detection:** {', '.join(threat_overview['detection'])}
+                **Threat Type:** {latest['threat_type']}
+                **Attempts Detected:** {len(window_events)} in {int(elapsed)} seconds
+                **Detection:** {', '.join(latest['detection'])}
 
                 **__AI Analysis__**
                 **Summary:** \n{ai_analysis.get('summary', 'N/A')}\n
@@ -136,30 +177,15 @@ def lambda_handler(event, context):
                 **IP Address:** \n{ai_analysis.get('ip_address') or 'Not found'}
                 """)
 
-                webhook_embed(
-                    title=title,
-                    message_description=description,
-                    color=threat_overview['color']
-                )
+                webhook_embed(title=title, message_description=description, color=latest['color'])
+                alerts_sent += 1
 
-            return {
-                'statusCode': 200,
-                'body': json.dumps(f'Found and reported {len(suspicious_events)} threats')
-            }
-        else:
-            return {
-                'statusCode': 200,
-                'body': json.dumps('No threats detected')
-            }
+        return {
+            'statusCode': 200,
+            'body': json.dumps(f'Sent {alerts_sent} alerts' if alerts_sent else 'No threshold breaches detected')
+        }
 
     except Exception as e:
         print(f"Error: {e}")
-        webhook_embed(
-            title="Lambda Error",
-            message_description=f"Error analyzing logs: {str(e)}",
-            color='ff0000'
-        )
-        return {
-            'statusCode': 500,
-            'body': json.dumps(f'Error: {str(e)}')
-        }
+        webhook_embed(title="Lambda Error", message_description=f"Error analyzing logs: {str(e)}", color='ff0000')
+        return {'statusCode': 500, 'body': json.dumps(f'Error: {str(e)}')}
