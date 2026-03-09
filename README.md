@@ -55,7 +55,7 @@ source ".venv/bin/activate" # Bash
 pip install -r ./requirements.txt
 ```
 
-### 4. Add .env File to run test.py
+### 4. Add .env File for `test.py`
 
 ```bash
 mkdir .env
