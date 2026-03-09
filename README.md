@@ -31,13 +31,80 @@ Note: The instance image I used is Ubuntu. Thus, the process of installing AWS C
 
 ## Repository Setup:
 
-WIP
+### 1. Clone Repository:
 
-## Script Explanation
+```bash
+clone https://github.com/ProximaSF/Security-Monitor-AI-Agent.git
+```
 
-WIP
+### 2. Setup .venv:
 
+```bash
+python -m venv .venv
+.venv/Scripts/activate # Powershell
+source ".venv/bin/activate" # Bash
+```
 
+### 3. Install Required Dependence:
+
+```bash
+pip install -r ./requirements.txt
+```
+
+### 4. Add .env File to run test.py
+
+```bash
+mkdir .env
+```
+
+- Inside .env, add these two environment variables: `WEBHOOK_URL` & `AWS_BEARER_TOKEN_BEDROCK`
+
+  ```markdown
+  WEBHOOK_URL=...
+  AWS_BEARER_TOKEN_BEDROCK=...
+  ```
+
+  - `WEBHOOK_URL`: Discord Webhook URL 
+  - `AWS_BEARER_TOKEN_BEDROCK`: AWS Bedrock API token
+
+<hr>
+
+## Script Explanation:
+
+### Global Variables:
+
+There are 3 global variables: `WEBHOOK_URL`, `FAILED_ATTEMPT_THRESHOLD` & `TIME_WINDOW_SECONDS`
+
+- `WEBHOOK_URL`: is assigned to a environment variables stored on AWS Lambda management system 
+- `FAILED_ATTEMPT_THRESHOLD`: Is the number failed login attempts before it triggers a alert
+- `TIME_WINDOW_SECONDS`: The time frame (2 minutes) which consist of failed login attempts
+
+### analyze_with_bedrock():
+
+Sends a detected threat (log message, type, and severity) to AWS Bedrock's Claude model and asks it to analyze the threat. It returns a JSON response containing a summary, likely attack type, recommended action, and extracted IP address.
+
+### webhook_embed():
+
+Builds and sends a formatted Discord embed message to a Discord Channel via Webhook URL. These message consist of security alerts or errors.
+
+### analyze_auth_log():
+
+Scans `auth.log` for keywords associated with known threat types (e.g. failed logins) and returns a threat object with its type, severity, and color if a match is found.
+
+### check_threshold_in_window():
+
+Uses a sliding window algorithm to check whether a minimum number of events occurred within a given time range, returning the triggering events if the threshold is met.
+
+- Mostly written by AI
+
+### lambda_handler():
+
+The main AWS Lambda handler that decodes and decompresses incoming CloudWatch log data, identifies suspicious events, groups them by threat type, and triggers Bedrock AI for analysis and Discord alerts when thresholds are meet.
+
+- Partially contain AI written codes:
+  - try-except logic, compress data, handle incoming data and alert trigger threshold
+
+<hr>
 
 ## Possible Future Improvement Check List
 

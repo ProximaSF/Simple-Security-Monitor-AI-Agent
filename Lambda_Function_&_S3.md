@@ -20,7 +20,8 @@ So far I only have one script to handle `auth-logs`. The script language I am fo
 1. Create a new IAM role so the function can read files from CloudWatch
    - Call the role something like `lambda-threat-detector-policy`
    - Add `AmazonSNSFullAccess `& `CloudWatchLogsFullAccess` for Permission Policy
-
+     - **Also add `AmazonAPIGatewayInvokeFullAccess` & `AmazonBedrockFullAccess` if using Bedrock**
+   
 2. Pick "Author from scratch" or a blueprint
    - Using the provided script, pick the first option
 3. Will be using Python for Runtime
@@ -35,32 +36,19 @@ So far I only have one script to handle `auth-logs`. The script language I am fo
    - Depending on the complexity of the script, might need to increase "timeout" value so the function can fully execute before AWS force stop the function 
      - Configuration → Edit → Timeout → adjust value if needed
 3. Click Deploy to update code
+   - Need to do this each time when updating code
 
 ### 4. Add Layer for Dependences
 
 #### Option 1: Upload Zip Dependencies
 
-##### 1. Create zip dependencies:
+1. Make sure you setup `.venv` inside the clone repository with the installed packages from `requirements.txt`
 
-1. Create a folder or using the clone repository, create a .venv and activate inside the folder
+2. Create folder called `python`
 
-   ```bash
-   python -m venv .venv
-   .venv/Scripts/activate # Powershell
-   source ".venv/bin/activate" # Bash
-   ```
+3. Copy and past all file from `.venv/Lib/site-packages` to the new created folder `python`
 
-2. Pip install all required dependence
-
-   ```bash
-   pip install -r ./requirements.txt
-   ```
-
-3. Create folder called `python`
-
-4. Copy and past all file from `.venv/Lib/site-packages` to the new created folder `python`
-
-5. Zip the folder
+4. Zip the folder
 
    - <u>If the file is more than 10MB, create a S3 bucket and store the zip file in there instead</u>
 
