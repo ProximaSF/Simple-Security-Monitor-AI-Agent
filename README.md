@@ -73,7 +73,7 @@ mkdir .env
 mkdir auth.log
 ```
 
-- You will need to populate the data. Use AI to provide a sample. 
+- You will need to populate the data. Use AI to provide a sample or your own. 
 
 <hr>
 
