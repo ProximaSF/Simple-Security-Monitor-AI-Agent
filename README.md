@@ -34,7 +34,7 @@ Note: The instance image I used is Ubuntu. Thus, the process of installing AWS C
 ### 1. Clone Repository:
 
 ```bash
-clone https://github.com/ProximaSF/Security-Monitor-AI-Agent.git
+git clone https://github.com/ProximaSF/Security-Monitor-AI-Agent.git
 ```
 
 ### 2. Setup .venv:
