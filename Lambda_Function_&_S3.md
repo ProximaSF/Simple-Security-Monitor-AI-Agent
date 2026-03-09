@@ -4,7 +4,7 @@
 
 The purpose of this markdown document is to setup a lambda function to build upon the CloudWatch Agent setup. The reason I made a lambda function is so I can automate system log event messages with a single script instead of manually reading the logs inside the instance to check for suspicious activity. As for S3, I happen to use this service because the zip file for the python dependencies was more than 10MB - plus, I wanted to see how S3 work and its purpose so I can use it later for the full AI agent integration with Bedrock.  
 
-So far I only have one script to handle the two log groups (`auth-logs` & `system-logs`). The script language I am for the function is Python version 3.14. So please make sure the zip file (`python.zip`) dependencies is for v3.14 or greater, or else it might not work. More instruction in Process section.
+So far I only have one script to handle `auth-logs`. The script language I am for the function is Python version 3.14. So please make sure the zip file (`python.zip`) dependencies is for v3.14 or greater, or else it might not work. More instruction in Process section.
 
 
 
