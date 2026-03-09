@@ -67,6 +67,14 @@ mkdir .env
   - `WEBHOOK_URL`: Discord Webhook URL 
   - `AWS_BEARER_TOKEN_BEDROCK`: AWS Bedrock API token
 
+### 5. Add auth.log file sample
+
+```bash
+mkdir auth.log
+```
+
+- You will need to populate the data. Use AI to provide a sample. 
+
 <hr>
 
 ## Script Explanation:
